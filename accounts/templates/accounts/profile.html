@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile | {{  user }}{% endblock %}
+
+{% block body %}
+    <div class="grid-80" style="word-wrap: break-word;">
+        {% if not user.first_name and not user.last_name and not profile.date_of_birth and not user.email and not profile.bio %}
+        <h1>No user information.</h1>
+    {% endif %}
+    {% if profile.avatar %}
+        <img src="{{ profile.avatar.url }}" alt="{{ usr }} avatar">
+    {% endif %}
+        <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+        {% if profile.birthday %}<h3>{{ profile.birthday }}</h3>{% endif %}
+        <p>{{ user.email|urlize }}</p>
+        <p>{{ profile.bio|linebreaksbr }}</p>
+        <a href="{% url 'home' %}"><button class="button-primary">Edit</button></a>
+        <a href="{% url 'home' %}"><button class="button-secondary">
+            {% if user.email %}
+                Edit
+            {% else %}
+                Add
+            {% endif %}
+                Email</button></a>
+        <a href="{% url 'home' %}"><button class="button-secondary">Change Password</button></a>
+    </div>
+{% endblock %}
