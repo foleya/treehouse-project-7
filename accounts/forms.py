@@ -9,34 +9,24 @@ from .models import Profile
 
 class UserForm(forms.ModelForm):
     """Form for editing info in User model"""
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name')
+
+
+class EmailForm(forms.ModelForm):
+    """Form for editing email in User model"""
     confirm_email = forms.EmailField(label="Confirm Email",
                                      required=False)
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
+        fields = ('email',)
 
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data['email'] != cleaned_data['confirm_email']:
             raise forms.ValidationError("E-mails do not match!")
-        return cleaned_data
-
-
-class PasswordForm(forms.ModelForm):
-    """Form for editing password in User model"""
-    confirm_password = forms.CharField(label='Confirm Password',
-                                       max_length=256)
-
-    class Meta:
-        model = User
-        fields = ('password',)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        if (cleaned_data['password'] !=
-                cleaned_data['confirm_password']):
-            raise forms.ValidationError("Passwords do not match!")
         return cleaned_data
 
 

@@ -13,6 +13,7 @@
         <p>E-mail: {{ user.email|urlize }}</p>
         <p>Bio: {{ profile.bio|linebreaksbr }}</p>
         <a href="{% url 'accounts:profile_edit' %}"><button class="button-primary">Edit Profile</button></a>
+        <a href="{% url 'accounts:change_email' %}"><button class="button-secondary">Change E-mail</button></a>
         <a href="{% url 'accounts:change_password' %}"><button class="button-secondary">Change Password</button></a>
     </div>
 {% endblock %}
