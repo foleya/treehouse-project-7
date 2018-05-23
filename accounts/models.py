@@ -8,9 +8,9 @@ from django.dispatch import receiver
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    birthday = models.DateField(null=True)
+    birthday = models.DateField(blank=True, null=True)
     bio = models.TextField(blank=True)
-    avatar = models.ImageField(null=True)
+    avatar = models.ImageField(null=True, blank=True)
 
     @receiver(post_save, sender=User)
     def update_user_profile(sender, instance, created, **kwargs):

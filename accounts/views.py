@@ -1,12 +1,16 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import (authenticate, login, logout,
+                                 update_session_auth_hash)
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import (AuthenticationForm,
+                                       UserCreationForm,
+                                       PasswordChangeForm)
+from django.db import transaction
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from .models import Profile
+from .forms import UserForm, PasswordForm, ProfileForm
 
 
 def sign_in(request):
@@ -19,7 +23,7 @@ def sign_in(request):
                 if user.is_active:
                     login(request, user)
                     return HttpResponseRedirect(
-                        reverse('home')  # TODO: go to profile
+                        reverse('accounts:profile')
                     )
                 else:
                     messages.error(
@@ -49,13 +53,15 @@ def sign_up(request):
                 request,
                 "You're now a user! You've been signed in, too."
             )
-            return HttpResponseRedirect(reverse('home'))  # TODO: go to profile
+            return HttpResponseRedirect(reverse('accounts:profile'))
     return render(request, 'accounts/sign_up.html', {'form': form})
 
 
+@login_required
 def sign_out(request):
     logout(request)
-    messages.success(request, "You've been signed out. Come back soon!")
+    messages.success(request,
+                     "You've been signed out. Come back soon!")
     return HttpResponseRedirect(reverse('home'))
 
 
@@ -64,3 +70,48 @@ def profile(request):
     """Displays user's profile"""
     profile = request.user.profile
     return render(request, 'accounts/profile.html', {'profile': profile})
+
+
+@login_required
+@transaction.atomic
+def profile_edit(request):
+    """Edit information in User and Profile models"""
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, request.FILES,
+                                   instance=request.user.profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile was updated!')
+            return HttpResponseRedirect(reverse('accounts:profile'))
+        else:
+            messages.error(request, 'Please correct the error below')
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = ProfileForm(instance=request.user.profile)
+    return render(request, 'accounts/profile_edit.html', {
+        'user_form': user_form,
+        'profile_form': profile_form
+    })
+
+
+@login_required
+@transaction.atomic
+def change_password(request):
+    """Change password in User model"""
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'You changed your password!')
+            return redirect('accounts:profile')
+        else:
+            messages.error(request, 'Please correct the error below')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(
+        request, 'accounts/change_password.html', {'form': form}
+    )
+
