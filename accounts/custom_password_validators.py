@@ -85,11 +85,16 @@ class CaseValidator:
         self.min_length = min_length
 
     def validate(self, password, user=None):
-        if (not any(character.isupper() for character in password) or
-            not any(character.islower() for character in password)):
-            raise ValidationError(_('Your password must contain '
-                                    'at least one uppercase '
-                                    'and one lowercase letter.'))
+        if not any(character.isupper() for character in password):
+            raise ValidationError(gettext(
+                'Your password must contain at least one uppercase '
+                'letter.'
+            ))
+        if not any(character.islower() for character in password):
+            raise ValidationError(gettext(
+                'Your password must contain at least one lowercase '
+                'letter.'
+            ))
 
     def get_help_text(self):
         return ("Your password must contain at least one uppercase "
