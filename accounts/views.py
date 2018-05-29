@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from .forms import EmailForm, ProfileForm, UserForm
+from .forms import ProfileForm, UserForm
 
 
 def sign_in(request):
@@ -88,30 +88,14 @@ def profile_edit(request):
         else:
             messages.error(request, 'Please correct the error below')
     else:
-        user_form = UserForm(instance=request.user)
+        user_form = UserForm(
+            instance=request.user,
+            initial={'confirm_email': request.user.email}
+        )
         profile_form = ProfileForm(instance=request.user.profile)
     return render(request, 'accounts/profile_edit.html', {
         'user_form': user_form,
         'profile_form': profile_form
-    })
-
-
-@login_required
-@transaction.atomic
-def change_email(request):
-    """Change email in User model"""
-    if request.method == 'POST':
-        email_form = EmailForm(request.POST, instance=request.user)
-        if email_form.is_valid():
-            email_form.save()
-            messages.success(request, 'Your e-mail was updated!')
-            return HttpResponseRedirect(reverse('accounts:profile'))
-        else:
-            messages.error(request, 'Please correct the error below')
-    else:
-        email_form = EmailForm(instance=request.user)
-    return render(request, 'accounts/change_email.html', {
-        'email_form': email_form,
     })
 
 

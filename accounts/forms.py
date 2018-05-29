@@ -8,25 +8,19 @@ from .models import Profile
 
 class UserForm(forms.ModelForm):
     """Form for editing info in User model"""
-    class Meta:
-        model = User
-        fields = ('username', 'first_name', 'last_name')
-
-
-class EmailForm(forms.ModelForm):
-    """Form for editing email in User model"""
     confirm_email = forms.EmailField(label="Confirm Email",
                                      required=False)
 
     class Meta:
         model = User
-        fields = ('email',)
+        fields = ('username', 'first_name', 'last_name', 'email')
 
-    def clean(self):
-        cleaned_data = super().clean()
-        if cleaned_data['email'] != cleaned_data['confirm_email']:
+    def clean_confirm_email(self):
+        email = self.cleaned_data['email']
+        confirm_email = self.cleaned_data['confirm_email']
+        if email != confirm_email:
             raise forms.ValidationError("E-mails do not match!")
-        return cleaned_data
+        return confirm_email
 
 
 class ProfileForm(forms.ModelForm):
