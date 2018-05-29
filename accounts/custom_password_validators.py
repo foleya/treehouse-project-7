@@ -99,3 +99,36 @@ class CaseValidator:
     def get_help_text(self):
         return ("Your password must contain at least one uppercase "
                 "and one lowercase letter.")
+
+
+class NameSimilarityValidator:
+    """
+    Validate whether the password contains the user's username,
+    first name, or last name.
+    """
+    USER_ATTRIBUTES = ('username', 'first_name', 'last_name')
+
+    def __init__(self, user_attributes=USER_ATTRIBUTES):
+        self.user_attributes = user_attributes
+
+    def validate(self, password, user=None):
+        if not user:
+            return
+
+        for attribute_name in self.user_attributes:
+            value = getattr(user, attribute_name, None)
+            if not value or not isinstance(value, str):
+                continue
+
+            if value.lower() in password.lower():
+                raise ValidationError(gettext(
+                    "Your password cannot contain your {}.".format(
+                        attribute_name.replace("_", " ")
+                    )
+                ))
+
+    def get_help_text(self):
+        return (
+            "Your password can't contain your username, first name, "
+            "or last name."
+        )
