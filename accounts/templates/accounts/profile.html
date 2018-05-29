@@ -6,9 +6,9 @@
     <div class="grid-80" style="word-wrap: break-word;">
     <h1>{{ user.username }}</h1>
     {% if profile.avatar %}
-        <img src="{{ profile.avatar.url }}" alt="{{ usr }} avatar">
+        <img class="circle--primary--avatar" src="{{ profile.avatar.url }}" alt="{{ usr }} avatar">
     {% endif %}
-        <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+        <p>Name: {{ user.first_name }} {{ user.last_name }}</pc>
         <p>Birthday: {{ profile.birthday }}</p>
         <p>E-mail: {{ user.email|urlize }}</p>
         <p>Bio: {{ profile.bio|linebreaksbr }}</p>
