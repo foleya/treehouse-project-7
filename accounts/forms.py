@@ -1,9 +1,13 @@
 from datetime import datetime
-
 from django import forms
 from django.contrib.auth.models import User
 
 from .models import Profile
+
+import logging
+logger = logging.getLogger(__name__)
+
+import dns.resolver, dns.exception
 
 
 class UserForm(forms.ModelForm):
@@ -18,8 +22,24 @@ class UserForm(forms.ModelForm):
     def clean_confirm_email(self):
         email = self.cleaned_data['email']
         confirm_email = self.cleaned_data['confirm_email']
+
+        # Check to make sure email inputs match.
         if email != confirm_email:
             raise forms.ValidationError("E-mails do not match!")
+
+        # Check to make sure email has a valid domain, by checking for
+        # MX records on the email domain (requires dnspython).
+        domain = confirm_email.split('@')[1]
+        try:
+            logger.debug('Checking domain %s', domain)
+            results = dns.resolver.query(domain, 'MX')
+
+        except dns.exception.DNSException:
+            logger.debug('Domain does not exist.')
+
+            raise forms.ValidationError("That domain could"
+                                        " not be found.")
+
         return confirm_email
 
 

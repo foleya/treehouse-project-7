@@ -2046,6 +2046,7 @@ input[type="email"].circle--input--h6, input[type="number"].circle--input--h6, i
 /* line 71, ../sass/circle/components/containers.sass */
 .circle--primary--avatar {
   width: 100%;
+  max-width: 450px;
   border-radius: 8px;
   background: #f9f9f9;
   overflow: hidden;
